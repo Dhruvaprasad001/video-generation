@@ -20,9 +20,18 @@ class Settings(BaseSettings):
     slide_width: int = 1920
     slide_height: int = 1080
 
+    # AWS Bedrock
+    claude_code_use_bedrock: str = "0"
+    aws_region: str = "us-east-1"
+    aws_bearer_token_bedrock: str = ""
+    aws_access_key_id: str = ""
+    aws_secret_access_key: str = ""
+    claude_code_subagent_model: str = ""
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
 
 
 settings = Settings()

@@ -77,26 +77,48 @@ async def call_llm(
     label: str = "agent",
 ) -> str:
     """
-    Call Claude via claude_agent_sdk and return the concatenated text response.
+    Call Claude and return the concatenated text response.
 
-    Falls back to calling the Anthropic SDK directly if claude_agent_sdk is
-    not available (e.g. during local dev without CLI).
+    Strategy (in order of preference):
+    1. If ANTHROPIC_API_KEY is set, use the direct Anthropic SDK — it is fast,
+       stateless, and does not require a running Claude Code CLI process.
+    2. Otherwise, attempt claude_agent_sdk (requires an authenticated Claude
+       Code CLI in PATH). If the CLI is not authenticated or any error occurs,
+       raise so the caller knows the operation failed rather than silently
+       returning empty content.
     """
+    import os
+
+    if os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("CLAUDE_CODE_USE_BEDROCK") == "1":
+        return await _call_anthropic_directly(user_prompt, system_prompt, label)
+
     try:
-        from claude_agent_sdk import ClaudeAgentOptions, query, ResultMessage
+        from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
 
         options = ClaudeAgentOptions(
             system_prompt=system_prompt,
-            allowed_tools=["Read", "Write", "Bash"],
             model=settings.anthropic_model,
-            thinking={"type": "adaptive"},
-            effort="high",
         )
 
         responses: List[str] = []
         async for msg in query(prompt=user_prompt, options=options):
-            if hasattr(msg, "content") and msg.content:
-                responses.append(str(msg.content))
+            if isinstance(msg, ResultMessage):
+                if msg.is_error:
+                    # The CLI ran but returned an error (e.g. auth failure).
+                    # Re-raise so we don't silently return empty content.
+                    error_detail = msg.result or "unknown CLI error"
+                    raise RuntimeError(
+                        f"Claude Code CLI returned is_error=True: {error_detail}. "
+                        "Set ANTHROPIC_API_KEY to use the direct Anthropic SDK instead."
+                    )
+                if msg.result:
+                    responses.append(msg.result)
+            elif hasattr(msg, "content") and msg.content:
+                for block in (msg.content if isinstance(msg.content, list) else [msg.content]):
+                    if hasattr(block, "text"):
+                        responses.append(block.text)
+                    else:
+                        responses.append(str(block))
 
         result = "\n".join(responses)
         logger.debug("[%s] LLM response length: %d chars", label, len(result))
@@ -110,10 +132,24 @@ async def call_llm(
 async def _call_anthropic_directly(user_prompt: str, system_prompt: str, label: str) -> str:
     """
     Direct Anthropic API call — fallback when claude_agent_sdk is unavailable.
+    Routes through AWS Bedrock when CLAUDE_CODE_USE_BEDROCK=1, otherwise uses
+    the direct Anthropic API (requires ANTHROPIC_API_KEY).
     """
+    import os
     import anthropic
 
-    client = anthropic.AsyncAnthropic()
+    use_bedrock = os.getenv("CLAUDE_CODE_USE_BEDROCK", "0") == "1"
+
+    if use_bedrock:
+        # Let the standard AWS credential chain resolve AWS_ACCESS_KEY_ID /
+        # AWS_SECRET_ACCESS_KEY from the environment — passing them explicitly
+        # conflicts when the Anthropic client also finds an api_key somewhere.
+        client = anthropic.AsyncAnthropicBedrock(
+            aws_region=os.getenv("AWS_REGION", "us-east-1"),
+        )
+    else:
+        client = anthropic.AsyncAnthropic()
+
     message = await client.messages.create(
         model=settings.anthropic_model,
         max_tokens=8096,
