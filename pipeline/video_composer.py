@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import List
 
 from models import LessonVideo, NarrationScript, SlideAsset, Storyboard
+from tools.mcp_tools import record_slide_to_video
 
 logger = logging.getLogger(__name__)
 
@@ -146,8 +147,15 @@ class VideoComposerAgent:
             return clip_path
 
         asset = asset_map.get(scene.scene_number)
-        png_path = asset.png_path if asset else None
 
+        # Try playwright animation recording first (captures CSS entrance animations)
+        if asset and Path(asset.html_path).exists():
+            result = self._try_record_animated_clip(asset.html_path, clip_path, scene.duration_seconds)
+            if result:
+                return clip_path
+
+        # Fall back to PNG → ffmpeg clip
+        png_path = asset.png_path if asset else None
         if png_path and Path(png_path).exists():
             self._ffmpeg_png_to_clip(png_path, clip_path, scene.duration_seconds)
         else:
@@ -159,6 +167,49 @@ class VideoComposerAgent:
             self._ffmpeg_colour_card_clip(clip_path, scene.duration_seconds, scene.scene_number)
 
         return clip_path
+
+    def _try_record_animated_clip(self, html_path: str, clip_path: Path, duration: int) -> bool:
+        """
+        Attempt to record the HTML slide as an animated MP4 via playwright.
+        Returns True on success, False on any failure (caller should fall back to PNG route).
+
+        Uses a separate thread with its own event loop to avoid conflicts with the
+        outer asyncio event loop that drives the pipeline.
+        """
+        import concurrent.futures
+        import asyncio
+
+        async def _record() -> str:
+            return await record_slide_to_video(
+                html_path=html_path,
+                mp4_path=str(clip_path),
+                duration_seconds=duration,
+            )
+
+        def _run_in_thread():
+            loop = asyncio.new_event_loop()
+            try:
+                return loop.run_until_complete(_record())
+            finally:
+                loop.close()
+
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(_run_in_thread)
+                result = future.result(timeout=duration + 60)
+        except concurrent.futures.TimeoutError:
+            logger.warning("Animated clip recording timed out for %s", html_path)
+            return False
+        except Exception as exc:
+            logger.warning("Animated clip recording exception: %s", exc)
+            return False
+
+        if result.startswith("ERROR:"):
+            logger.info("Animated clip not available (%s) — falling back to PNG", result)
+            return False
+
+        logger.info("  Recorded animated clip: %s", clip_path)
+        return True
 
     # ------------------------------------------------------------------
     # ffmpeg helpers

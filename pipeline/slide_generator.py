@@ -1,17 +1,21 @@
 """
 SlideGeneratorAgent — stage 5 of the pipeline.
 
-For each scene in a storyboard, generates a self-contained HTML slide
-(beautiful dark-theme design) and renders it to a 1920×1080 PNG via playwright.
+For each scene in a storyboard, picks the right OneCap template,
+calls the LLM once to format/enrich content as JSON,
+fills the template, and renders it to a 1920x1080 PNG via playwright.
 """
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 from typing import List
 
 from models import Scene, SlideAsset, Storyboard
-from pipeline.base import call_llm, load_json_if_exists, load_prompt, save_json
+from pipeline.base import call_llm, extract_json_from_response, load_json_if_exists, load_prompt, save_json
+from pipeline.template_mapper import map_scene_to_template
+from pipeline.slide_templates import render_template
 from tools.mcp_tools import render_slide_to_png
 from config import settings
 
@@ -19,17 +23,15 @@ logger = logging.getLogger(__name__)
 
 
 class SlideGeneratorAgent:
-    """Generate HTML slides and render them to PNGs."""
+    """Generate HTML slides via OneCap templates and render them to PNGs."""
 
     async def run(
         self,
         storyboards: List[Storyboard],
         output_dir: Path,
     ) -> dict[str, List[SlideAsset]]:
-        """
-        Returns a dict mapping lesson_title → list of SlideAsset.
-        """
-        system_prompt = load_prompt("slide_generator")
+        """Returns a dict mapping lesson_title → list of SlideAsset."""
+        system_prompt = load_prompt("slide_content")
         all_assets: dict[str, List[SlideAsset]] = {}
 
         for board in storyboards:
@@ -83,19 +85,16 @@ class SlideGeneratorAgent:
         html_path = slides_dir / f"scene_{scene.scene_number:03d}.html"
         png_path = slides_dir / f"scene_{scene.scene_number:03d}.png"
 
-        # Resume: skip LLM call if HTML already exists (PNG may still need rendering)
         if html_path.exists():
-            logger.info("  Resuming: HTML for slide %d already exists, skipping LLM", scene.scene_number)
-            html_content = None  # signal to skip generation
+            logger.info("  Resuming: HTML for slide %d already exists, skipping", scene.scene_number)
         else:
-            html_content = await self._request_slide_html(
+            html_content = await self._build_slide_html(
                 scene=scene,
                 lesson_title=lesson_title,
                 system_prompt=system_prompt,
             )
             html_path.write_text(html_content, encoding="utf-8")
 
-        # Skip PNG render if it already exists
         if png_path.exists():
             return SlideAsset(
                 scene_number=scene.scene_number,
@@ -103,7 +102,6 @@ class SlideGeneratorAgent:
                 png_path=str(png_path),
             )
 
-        # Render HTML → PNG
         result = await render_slide_to_png(
             html_path=str(html_path),
             png_path=str(png_path),
@@ -113,12 +111,6 @@ class SlideGeneratorAgent:
 
         if result.startswith("ERROR:"):
             logger.warning("PNG render failed for scene %d: %s", scene.scene_number, result)
-            # We still return an asset pointing to the HTML — video composer will handle missing PNGs
-            return SlideAsset(
-                scene_number=scene.scene_number,
-                html_path=str(html_path),
-                png_path=str(png_path),  # may not exist
-            )
 
         return SlideAsset(
             scene_number=scene.scene_number,
@@ -126,38 +118,75 @@ class SlideGeneratorAgent:
             png_path=str(png_path),
         )
 
-    async def _request_slide_html(
+    async def _build_slide_html(
         self,
         scene: Scene,
         lesson_title: str,
         system_prompt: str,
     ) -> str:
-        import json
-
-        user_prompt = (
-            f"Generate a beautiful HTML slide for this scene.\n\n"
-            f"LESSON: {lesson_title}\n"
-            f"SCENE NUMBER: {scene.scene_number}\n"
-            f"SLIDE TYPE: {scene.slide_type}\n"
-            f"SECTION: {scene.section_type}\n"
-            f"DURATION: {scene.duration_seconds}s\n\n"
-            f"SLIDE CONTENT:\n{json.dumps(scene.slide_content, indent=2)}\n\n"
-            f"NARRATION (for context — do NOT show on slide):\n{scene.narration_text}\n\n"
-            "Return ONLY the complete HTML — no explanation, no markdown fences. "
-            "Start directly with <!DOCTYPE html>."
+        """
+        1. Use template_mapper to normalise raw storyboard content (no LLM needed for simple types).
+        2. Call LLM once to enrich/reformat content as clean JSON for the template.
+        3. Fill the template and return HTML.
+        """
+        # Step 1: Get template type + raw normalised content
+        slide_type, raw_content = map_scene_to_template(
+            slide_type=scene.slide_type,
+            slide_content=scene.slide_content,
+            scene_number=scene.scene_number,
+            lesson_title=lesson_title,
+            section_type=scene.section_type,
         )
 
-        raw = await call_llm(user_prompt, system_prompt, f"SlideGen[scene {scene.scene_number}]")
+        # Step 2: LLM enrichment — ask LLM to return clean, concise JSON for this template
+        enriched_content = await self._enrich_content_via_llm(
+            slide_type=slide_type,
+            raw_content=raw_content,
+            scene=scene,
+            lesson_title=lesson_title,
+            system_prompt=system_prompt,
+        )
 
-        # Extract HTML — strip any accidental markdown fences
-        raw = raw.strip()
-        if raw.startswith("```"):
-            lines = raw.split("\n")
-            # drop first and last fence lines
-            lines = [l for l in lines if not l.strip().startswith("```")]
-            raw = "\n".join(lines)
+        # Step 3: Render template
+        return render_template(slide_type, enriched_content)
 
-        if not raw.startswith("<!DOCTYPE") and "<!DOCTYPE" in raw:
-            raw = raw[raw.index("<!DOCTYPE"):]
+    async def _enrich_content_via_llm(
+        self,
+        slide_type: str,
+        raw_content: dict,
+        scene: Scene,
+        lesson_title: str,
+        system_prompt: str,
+    ) -> dict:
+        """
+        Call LLM to reformat the storyboard content into clean, concise content
+        for the chosen template. Returns the parsed JSON dict, falling back to
+        raw_content if the LLM call fails.
+        """
+        user_prompt = (
+            f"Format the following storyboard scene data as clean JSON for a '{slide_type}' slide.\n\n"
+            f"LESSON: {lesson_title}\n"
+            f"SCENE: {scene.scene_number}\n"
+            f"SLIDE TYPE: {slide_type}\n"
+            f"SECTION TYPE: {scene.section_type}\n"
+            f"DURATION: {scene.duration_seconds}s\n\n"
+            f"STORYBOARD CONTENT:\n{json.dumps(scene.slide_content, indent=2)}\n\n"
+            f"NARRATION (context only — do not show on slide):\n{scene.narration_text}\n\n"
+            f"Return ONLY valid JSON with the required keys for slide_type '{slide_type}'. No explanation."
+        )
 
-        return raw.strip()
+        try:
+            raw = await call_llm(user_prompt, system_prompt, f"SlideContent[scene {scene.scene_number}]")
+            json_str = extract_json_from_response(raw)
+            enriched = json.loads(json_str)
+            if isinstance(enriched, dict) and enriched:
+                logger.debug("  LLM enrichment OK for scene %d (%s)", scene.scene_number, slide_type)
+                return enriched
+        except Exception as exc:
+            logger.warning(
+                "LLM enrichment failed for scene %d (%s): %s — using raw content",
+                scene.scene_number, slide_type, exc,
+            )
+
+        # Fall back to the normalised raw content from template_mapper
+        return raw_content
