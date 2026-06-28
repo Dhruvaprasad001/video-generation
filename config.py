@@ -13,6 +13,8 @@ load_dotenv()
 
 class Settings(BaseSettings):
     anthropic_model: str = "claude-sonnet-4-5"
+    openai_model: str = "gpt-4o-mini"
+    openai_api_key: str = ""
     workspace_root: Path = Path("./output")
     log_level: str = "INFO"
 

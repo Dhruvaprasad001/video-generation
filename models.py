@@ -39,7 +39,6 @@ class Lesson(BaseModel):
     title: str
     learning_objectives: List[LearningObjective]
     estimated_minutes: int = 10
-    scenes: List["Scene"] = Field(default_factory=list)
 
 
 class Module(BaseModel):

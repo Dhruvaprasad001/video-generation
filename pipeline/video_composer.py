@@ -13,6 +13,8 @@ Pipeline:
 from __future__ import annotations
 
 import logging
+import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -23,6 +25,25 @@ from models import LessonVideo, NarrationScript, SlideAsset, Storyboard
 logger = logging.getLogger(__name__)
 
 FFMPEG_LOGLEVEL = "warning"
+
+
+def _find_ffmpeg() -> str:
+    """Return the ffmpeg binary path, checking common install locations."""
+    # Check PATH first
+    found = shutil.which("ffmpeg")
+    if found:
+        return found
+    # Homebrew on Apple Silicon and Intel
+    for candidate in ["/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg"]:
+        if os.path.isfile(candidate):
+            return candidate
+    raise RuntimeError(
+        "ffmpeg is not installed or not on PATH. "
+        "Install with: brew install ffmpeg  (macOS) or  apt install ffmpeg  (Linux)"
+    )
+
+
+FFMPEG_BIN = None  # resolved lazily on first use
 
 
 class VideoComposerAgent:
@@ -206,6 +227,11 @@ class VideoComposerAgent:
 
     def _run_ffmpeg(self, cmd: List[str], label: str) -> None:
         """Run an ffmpeg command, raising a clear error if it fails."""
+        global FFMPEG_BIN
+        if FFMPEG_BIN is None:
+            FFMPEG_BIN = _find_ffmpeg()
+        # Replace the 'ffmpeg' placeholder at index 0 with the resolved binary
+        cmd[0] = FFMPEG_BIN
         logger.debug("ffmpeg [%s]: %s", label, " ".join(cmd))
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)

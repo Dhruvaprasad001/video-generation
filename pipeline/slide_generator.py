@@ -83,26 +83,28 @@ class SlideGeneratorAgent:
         html_path = slides_dir / f"scene_{scene.scene_number:03d}.html"
         png_path = slides_dir / f"scene_{scene.scene_number:03d}.png"
 
-        # Resume: skip generation if both files already exist
-        if html_path.exists() and png_path.exists():
-            logger.info("  Resuming: slide %d already exists", scene.scene_number)
+        # Resume: skip LLM call if HTML already exists (PNG may still need rendering)
+        if html_path.exists():
+            logger.info("  Resuming: HTML for slide %d already exists, skipping LLM", scene.scene_number)
+            html_content = None  # signal to skip generation
+        else:
+            html_content = await self._request_slide_html(
+                scene=scene,
+                lesson_title=lesson_title,
+                system_prompt=system_prompt,
+            )
+            html_path.write_text(html_content, encoding="utf-8")
+
+        # Skip PNG render if it already exists
+        if png_path.exists():
             return SlideAsset(
                 scene_number=scene.scene_number,
                 html_path=str(html_path),
                 png_path=str(png_path),
             )
 
-        html_content = await self._request_slide_html(
-            scene=scene,
-            lesson_title=lesson_title,
-            system_prompt=system_prompt,
-        )
-
-        # Save HTML
-        html_path.write_text(html_content, encoding="utf-8")
-
-        # Render to PNG
-        result = render_slide_to_png(
+        # Render HTML → PNG
+        result = await render_slide_to_png(
             html_path=str(html_path),
             png_path=str(png_path),
             width=settings.slide_width,

@@ -77,17 +77,17 @@ async def call_llm(
     label: str = "agent",
 ) -> str:
     """
-    Call Claude and return the concatenated text response.
+    Call the LLM and return the text response.
 
-    Strategy (in order of preference):
-    1. If ANTHROPIC_API_KEY is set, use the direct Anthropic SDK — it is fast,
-       stateless, and does not require a running Claude Code CLI process.
-    2. Otherwise, attempt claude_agent_sdk (requires an authenticated Claude
-       Code CLI in PATH). If the CLI is not authenticated or any error occurs,
-       raise so the caller knows the operation failed rather than silently
-       returning empty content.
+    Priority:
+    1. OPENAI_API_KEY set → use OpenAI (gpt-4o-mini by default)
+    2. ANTHROPIC_API_KEY or CLAUDE_CODE_USE_BEDROCK=1 → use Anthropic/Bedrock
+    3. claude_agent_sdk fallback (requires authenticated Claude Code CLI)
     """
     import os
+
+    if os.environ.get("OPENAI_API_KEY"):
+        return await _call_openai(user_prompt, system_prompt, label)
 
     if os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("CLAUDE_CODE_USE_BEDROCK") == "1":
         return await _call_anthropic_directly(user_prompt, system_prompt, label)
@@ -129,24 +129,52 @@ async def call_llm(
         return await _call_anthropic_directly(user_prompt, system_prompt, label)
 
 
+async def _call_openai(user_prompt: str, system_prompt: str, label: str) -> str:
+    """Call OpenAI chat completions API."""
+    from openai import AsyncOpenAI
+
+    client = AsyncOpenAI(api_key=settings.openai_api_key)
+    response = await client.chat.completions.create(
+        model=settings.openai_model,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        max_tokens=8096,
+        temperature=0.7,
+    )
+    text = response.choices[0].message.content or ""
+    logger.debug("[%s] OpenAI response: %d chars", label, len(text))
+    return text
+
+
 async def _call_anthropic_directly(user_prompt: str, system_prompt: str, label: str) -> str:
     """
     Direct Anthropic API call — fallback when claude_agent_sdk is unavailable.
-    Routes through AWS Bedrock when CLAUDE_CODE_USE_BEDROCK=1, otherwise uses
-    the direct Anthropic API (requires ANTHROPIC_API_KEY).
+
+    Three auth modes (checked in order):
+    1. AWS_BEARER_TOKEN_BEDROCK — Claude-specific Bedrock bearer token (custom format).
+       Called via httpx directly against the Bedrock converse endpoint since the
+       standard anthropic.AsyncAnthropicBedrock client does not support this token format.
+    2. CLAUDE_CODE_USE_BEDROCK=1 without bearer token — standard AWS IAM SigV4 via
+       anthropic.AsyncAnthropicBedrock (requires AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
+       with bedrock:InvokeModel permission).
+    3. ANTHROPIC_API_KEY — direct Anthropic API.
     """
     import os
     import anthropic
 
+    bearer_token = os.getenv("AWS_BEARER_TOKEN_BEDROCK", "")
     use_bedrock = os.getenv("CLAUDE_CODE_USE_BEDROCK", "0") == "1"
+    aws_region = os.getenv("AWS_REGION", "us-east-1")
+
+    if bearer_token:
+        return await _call_bedrock_with_bearer(
+            user_prompt, system_prompt, label, bearer_token, aws_region
+        )
 
     if use_bedrock:
-        # Let the standard AWS credential chain resolve AWS_ACCESS_KEY_ID /
-        # AWS_SECRET_ACCESS_KEY from the environment — passing them explicitly
-        # conflicts when the Anthropic client also finds an api_key somewhere.
-        client = anthropic.AsyncAnthropicBedrock(
-            aws_region=os.getenv("AWS_REGION", "us-east-1"),
-        )
+        client = anthropic.AsyncAnthropicBedrock(aws_region=aws_region)
     else:
         client = anthropic.AsyncAnthropic()
 
@@ -161,6 +189,54 @@ async def _call_anthropic_directly(user_prompt: str, system_prompt: str, label: 
         if hasattr(block, "text"):
             text += block.text
     logger.debug("[%s] Anthropic direct response: %d chars", label, len(text))
+    return text
+
+
+async def _call_bedrock_with_bearer(
+    user_prompt: str,
+    system_prompt: str,
+    label: str,
+    bearer_token: str,
+    aws_region: str,
+) -> str:
+    """
+    Call Claude on Bedrock using the AWS_BEARER_TOKEN_BEDROCK custom bearer token.
+    The Anthropic Python client does not support this token format, so we call
+    the Bedrock Messages API directly via httpx.
+    """
+    import httpx
+
+    model_id = settings.anthropic_model
+    url = (
+        f"https://bedrock-runtime.{aws_region}.amazonaws.com"
+        f"/model/{model_id}/invoke"
+    )
+    payload = {
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 8096,
+        "system": system_prompt,
+        "messages": [{"role": "user", "content": user_prompt}],
+    }
+    headers = {
+        "Authorization": f"Bearer {bearer_token}",
+        "Content-Type": "application/json",
+    }
+
+    async with httpx.AsyncClient(timeout=120.0) as http:
+        response = await http.post(url, json=payload, headers=headers)
+
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"[{label}] Bedrock bearer request failed {response.status_code}: "
+            f"{response.text[:400]}"
+        )
+
+    data = response.json()
+    text = ""
+    for block in data.get("content", []):
+        if block.get("type") == "text":
+            text += block.get("text", "")
+    logger.debug("[%s] Bedrock bearer response: %d chars", label, len(text))
     return text
 
 

@@ -19,15 +19,14 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
-def render_slide_to_png(
+async def render_slide_to_png(
     html_path: str,
     png_path: str,
     width: int = 1920,
     height: int = 1080,
 ) -> str:
     """
-    Screenshot an HTML slide to PNG using playwright.
-
+    Screenshot an HTML slide to PNG using playwright async API.
     Falls back to wkhtmltoimage if playwright is not installed.
     Returns the path to the written PNG on success, or an error string.
     """
@@ -35,17 +34,18 @@ def render_slide_to_png(
     png_path_obj = Path(png_path)
     png_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
-    # Try playwright first
     try:
-        from playwright.sync_api import sync_playwright
+        from playwright.async_api import async_playwright
 
-        with sync_playwright() as p:
-            browser = p.chromium.launch(args=["--no-sandbox", "--disable-setuid-sandbox"])
-            page = browser.new_page(viewport={"width": width, "height": height})
-            page.goto(f"file://{html_path_obj}", wait_until="networkidle")
-            page.wait_for_timeout(500)  # let CSS animations settle
-            page.screenshot(path=str(png_path_obj), full_page=False)
-            browser.close()
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+                args=["--no-sandbox", "--disable-setuid-sandbox"]
+            )
+            page = await browser.new_page(viewport={"width": width, "height": height})
+            await page.goto(f"file://{html_path_obj}", wait_until="networkidle")
+            await page.wait_for_timeout(500)
+            await page.screenshot(path=str(png_path_obj), full_page=False)
+            await browser.close()
 
         logger.info("Rendered slide (playwright): %s → %s", html_path, png_path)
         return str(png_path_obj)
