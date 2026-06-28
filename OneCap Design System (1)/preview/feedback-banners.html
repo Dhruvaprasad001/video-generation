@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"><link rel="stylesheet" href="_card.css"><style>
+  .row { display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border-radius:8px; margin-bottom:10px; }
+  .ic { width:18px; height:18px; border-radius:999px; flex:none; display:inline-flex; align-items:center; justify-content:center; font:700 11px/1 Inter; color:white; margin-top:1px; }
+  .ttl { font:600 13px/18px Inter; }
+  .sub { font:400 12px/16px Inter; color:#6C727F; margin-top:1px; }
+  .s { background:rgba(22,162,73,0.08); border:1px solid rgba(22,162,73,0.20); }
+  .s .ttl { color:#036C4B; }
+  .w { background:rgba(245,159,10,0.08); border:1px solid rgba(245,159,10,0.22); }
+  .w .ttl { color:#8D5605; }
+  .e { background:rgba(220,40,40,0.06); border:1px solid rgba(220,40,40,0.22); }
+  .e .ttl { color:#9B1A1A; }
+  .i { background:rgba(36,99,235,0.06); border:1px solid rgba(36,99,235,0.22); }
+  .i .ttl { color:#134FD1; }
+</style></head><body><div class="card-root">
+  <div class="row s"><span class="ic" style="background:#16A249">✓</span><div><div class="ttl">Reconciliation complete.</div><div class="sub">847 entries matched. 3 flagged for review.</div></div></div>
+  <div class="row w"><span class="ic" style="background:#F59F0A">!</span><div><div class="ttl">3 vendors haven't confirmed in 7 days.</div><div class="sub">Consider resending confirmation requests.</div></div></div>
+  <div class="row e"><span class="ic" style="background:#DC2828">✕</span><div><div class="ttl">Connection to NetSuite lost.</div><div class="sub">Retry or contact your admin to re-authenticate.</div></div></div>
+  <div class="row i"><span class="ic" style="background:#2463EB">i</span><div><div class="ttl">New: bulk-approve is in beta.</div><div class="sub">Enable it in Settings → Experimental.</div></div></div>
+</div></body></html>

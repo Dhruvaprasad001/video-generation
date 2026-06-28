@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap"><link rel="stylesheet" href="_card.css"><style>
+  .group { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .btn { height: 36px; padding: 0 16px; border-radius: 6px; border: 0; font: 500 14px/1 Inter; letter-spacing:-0.15px; display:inline-flex; align-items:center; gap:8px; cursor:pointer; }
+  .primary { background:#01187D; color:white; box-shadow: 0 1px 2px -1px rgba(0,0,0,.1),0 1px 3px 0 rgba(0,0,0,.1); }
+  .secondary { background:#00A36C; color:white; }
+  .supporting { background:#6ABAEC; color:white; }
+  .outline { background:#F9FAFB; color:#12172B; border:1px solid #DDDFE4; height:38px; }
+  .ghost { background:transparent; color:#12172B; }
+  .danger { background:#DC2828; color:white; }
+  .disabled { opacity:.5; pointer-events:none; }
+  .lbl { font:500 11px/1 "JetBrains Mono"; color:#6C727F; width:74px; }
+  .row2 { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+</style></head><body><div class="card-root">
+  <div class="row2"><span class="lbl">Primary</span><button class="btn primary">+ Create</button><button class="btn primary disabled">Disabled</button></div>
+  <div class="row2"><span class="lbl">Secondary</span><button class="btn secondary">✓ Approve</button><button class="btn secondary disabled">Disabled</button></div>
+  <div class="row2"><span class="lbl">Supporting</span><button class="btn supporting">↑ Export</button></div>
+  <div class="row2"><span class="lbl">Outline</span><button class="btn outline">≡ Filter</button><span class="lbl">Ghost</span><button class="btn ghost">⚙ Settings</button></div>
+  <div class="row2"><span class="lbl">Destructive</span><button class="btn danger">✕ Delete</button></div>
+</div></body></html>

@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"><link rel="stylesheet" href="_card.css"><style>
+  .grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px; }
+  .card { border:1px solid #EDEFF3; border-radius:12px; padding:16px 18px; background:white; }
+  .title { font:500 12px/16px Inter; color:#6C727F; }
+  .num { font:700 26px/32px Inter; letter-spacing:-0.5px; color:#12172B; font-variant-numeric: tabular-nums; margin-top:6px; }
+  .delta { font:600 12px/16px Inter; display:inline-flex; gap:4px; align-items:center; margin-top:6px; padding:2px 8px; border-radius:999px; }
+  .up { color:#036C4B; background:#EAFFF8; }
+  .down { color:#BC1E1E; background:#FCEDED; }
+  .flat { color:#134FD1; background:#ECF1FD; }
+  .sub { font:400 11px/14px Inter; color:#6C727F; margin-top:6px; }
+</style></head><body><div class="card-root">
+<div class="grid">
+  <div class="card">
+    <div class="title">Active Clients</div>
+    <div class="num">284</div>
+    <span class="delta up">↑ +8.2%</span>
+    <div class="sub">vs last quarter</div>
+  </div>
+  <div class="card">
+    <div class="title">Invoices Processed</div>
+    <div class="num">18,402</div>
+    <span class="delta down">↓ −3.1%</span>
+    <div class="sub">vs last month</div>
+  </div>
+  <div class="card">
+    <div class="title">Compliance Rate</div>
+    <div class="num">99.4%</div>
+    <span class="delta flat">→ +0.4%</span>
+    <div class="sub">vs last audit</div>
+  </div>
+</div>
+</div></body></html>

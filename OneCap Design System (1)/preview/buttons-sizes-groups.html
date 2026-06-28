@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap"><link rel="stylesheet" href="_card.css"><style>
+  .row2 { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .lbl { font:500 11px/1 "JetBrains Mono"; color:#6C727F; width:72px; }
+  .btn { border-radius:6px; background:#01187D; color:white; border:0; font:500 Inter; letter-spacing:-0.15px; display:inline-flex; align-items:center; justify-content:center; }
+  .sm { height:32px; padding:0 12px; font-size:13px; }
+  .md { height:36px; padding:0 16px; font-size:14px; }
+  .lg { height:48px; padding:0 20px; font-size:15px; }
+  .group { display:inline-flex; border:1px solid #EAE9E9; border-radius:6px; overflow:hidden; padding:1px; background:white; }
+  .seg { padding: 9px 14px; font:500 13px/1 Inter; color:#6C727F; background:transparent; border:0; cursor:pointer; border-radius:5px; }
+  .seg.active { background:#F3F4F6; color:#12172B; }
+</style></head><body><div class="card-root">
+  <div class="row2"><span class="lbl">Sizes</span>
+    <button class="btn sm">Small</button>
+    <button class="btn md">Medium</button>
+    <button class="btn lg">Large</button>
+  </div>
+  <div class="row2"><span class="lbl">Group</span>
+    <div class="group">
+      <button class="seg active">Ledger</button>
+      <button class="seg">PG Recon</button>
+      <button class="seg">Month</button>
+    </div>
+  </div>
+  <div style="font:400 12px/16px Inter;color:#6C727F;margin-top:4px">
+    Segmented groups share a single border; selected segment fills with <span class="mono">#F3F4F6</span>. Heights: 32 / 36 / 48 px.
+  </div>
+</div></body></html>

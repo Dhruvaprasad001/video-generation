@@ -1,0 +1,25 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css"><style>
+  .ramp { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; margin-top: 10px; }
+  .chip { height: 56px; border-radius: 6px; display:flex; align-items:flex-end; padding:6px; color:white; font: 500 9px/1 "JetBrains Mono", monospace; }
+  .chip.dark { color: white; } .chip.light { color: #12172B; }
+  .label { font: 600 13px/1.2 Inter; letter-spacing:-0.1px; margin-bottom: 2px; }
+  .sub { font: 400 11px/1 "JetBrains Mono"; color:#6C727F; }
+  .row { margin-bottom: 10px; }
+</style></head><body><div class="card-root">
+  <div class="row">
+    <div class="label">Royal Blue — primary</div>
+    <div class="sub">50 → 900, base = 500</div>
+    <div class="ramp">
+      <div class="chip light" style="background:#EAF0FE">50</div>
+      <div class="chip light" style="background:#CCD5FE">100</div>
+      <div class="chip light" style="background:#AACFD9">200</div>
+      <div class="chip light" style="background:#7AAFD5">300</div>
+      <div class="chip dark" style="background:#345FC1">400</div>
+      <div class="chip dark" style="background:#01187D">500</div>
+      <div class="chip dark" style="background:#010F4E">600</div>
+      <div class="chip dark" style="background:#000A38">700</div>
+      <div class="chip dark" style="background:#00062A">800</div>
+      <div class="chip dark" style="background:#00031C">900</div>
+    </div>
+  </div>
+</div></body></html>

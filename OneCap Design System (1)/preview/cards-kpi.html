@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"><link rel="stylesheet" href="_card.css"><style>
+  .grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px; }
+  .card { border:1px solid #EDEFF3; border-radius:12px; padding:18px; background:white; }
+  .badge { width:40px; height:40px; border-radius:999px; display:flex; align-items:center; justify-content:center; font:700 15px/1 Inter; margin-bottom:14px; }
+  .num { font:700 28px/32px Inter; letter-spacing:-0.5px; font-variant-numeric: tabular-nums; color:#12172B; }
+  .title { font:600 13px/20px Inter; color:#12172B; margin-top:4px; }
+  .sub { font:400 12px/16px Inter; color:#6C727F; margin-top:4px; }
+</style></head><body><div class="card-root">
+<div class="grid">
+  <div class="card">
+    <div class="badge" style="background:rgba(22,162,73,0.10);color:#16A249">✓</div>
+    <div class="num">3</div><div class="title">Confirmed</div><div class="sub">Both parties agree on balance</div>
+  </div>
+  <div class="card">
+    <div class="badge" style="background:rgba(220,40,40,0.10);color:#DC2828">!</div>
+    <div class="num">13</div><div class="title">Mismatches</div><div class="sub">Awaiting reconciliation action</div>
+  </div>
+  <div class="card">
+    <div class="badge" style="background:rgba(245,159,10,0.12);color:#CD8508">◷</div>
+    <div class="num">11</div><div class="title">Awaiting Response</div><div class="sub">Pending vendor confirmation</div>
+  </div>
+</div>
+</div></body></html>

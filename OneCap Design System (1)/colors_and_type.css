@@ -1,0 +1,267 @@
+/* ============================================================
+   OneCap Design System — Color & Type Tokens
+   Source: Figma design-system.fig
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  /* ============================================================
+     TYPEFACES
+     Lato for UI. JetBrains Mono for code/tabular figures.
+     ============================================================ */
+  --font-sans: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ============================================================
+     TYPE SCALE — 5 steps (12 → 20px). Disciplined, narrow range.
+     Line-heights tuned for dense data UIs.
+     ============================================================ */
+  --text-xs:   12px;  /* captions, labels, metadata */
+  --text-sm:   14px;  /* buttons, nav, secondary text */
+  --text-base: 16px;  /* body copy, paragraphs */
+  --text-lg:   18px;  /* section headings, subheads */
+  --text-xl:   20px;  /* page titles, card headers */
+  --text-2xl:  28px;  /* hero numerics, big stats */
+
+  --lh-xs:   16px;
+  --lh-sm:   20px;
+  --lh-base: 24px;
+  --lh-lg:   28px;
+  --lh-xl:   28px;
+  --lh-2xl:  32px;
+
+  --fw-regular:  400;
+  --fw-medium:   700;  /* Lato has no 500 — step to 700 */
+  --fw-semibold: 700;
+  --fw-bold:     900;
+
+  /* tight tracking on Inter Medium/Bold (seen throughout Figma) */
+  --tracking-tight: -0.15px;
+
+  /* ============================================================
+     BRAND COLORS
+     Royal Blue is the dominant primary — appears 30×+ in Figma.
+     Midnight Violet + Sea Green are accent primaries.
+     ============================================================ */
+  --royal-blue:      #01187D;   /* primary actions, nav, brand */
+  --royal-blue-700:  #1C3A8E;   /* text-on-light variant */
+  --sea-green:       #6ABAED;   /* secondary brand */
+  --midnight-violet: #57007F;   /* accent — monetary IDs only */
+
+  /* Royal Blue tint ramp (from Figma) */
+  --blue-50:  #EAF0FE;
+  --blue-100: #CCD5FE;
+  --blue-200: #AACFD9;
+  --blue-300: #7AAFD5;
+  --blue-400: #345FC1;
+  --blue-500: #01187D;
+  --blue-600: #010F4E;
+  --blue-700: #000A38;
+  --blue-800: #00062A;
+  --blue-900: #00031C;
+
+  /* Midnight Violet ramp */
+  --violet-50:  #F8EAFF;
+  --violet-100: #EECCFE;
+  --violet-200: #DE99FF;
+  --violet-300: #CB5BFF;
+  --violet-400: #B619FF;
+  --violet-500: #57007F;
+  --violet-600: #110019;
+  --violet-700: #1F002D;
+  --violet-800: #0A000F;
+
+  /* Sea Green ramp (secondary brand — a cool, airy blue) */
+  --sea-50:  #F2F9FE;
+  --sea-100: #DEEFFB;
+  --sea-200: #BFE0F6;
+  --sea-300: #9BCEF1;
+  --sea-400: #6ABAED;
+  --sea-500: #6ABAED;
+  --sea-600: #3E8EC3;
+  --sea-700: #1F5C87;
+  --sea-800: #103654;
+
+  /* Secondary brand — Deep Teal */
+  --teal-50:  #EAFAFF;
+  --teal-100: #CCF3FE;
+  --teal-200: #99E8FF;
+  --teal-300: #5BDBFF;
+  --teal-400: #19CDFF;
+  --teal-500: #006B8A;
+  --teal-600: #004B60;
+  --teal-700: #002B38;
+
+  /* Secondary — Orchid Purple */
+  --orchid-50:  #F6F0F8;
+  --orchid-100: #E9DBEF;
+  --orchid-200: #D4B8DF;
+  --orchid-300: #BB8DCD;
+  --orchid-400: #9F5FB9;
+  --orchid-500: #9B59B6;
+
+  /* Supporting — Sky Blue (seen in UI) */
+  --sky-500: #6ABAEC;
+
+  /* ============================================================
+     SEMANTIC COLORS
+     ============================================================ */
+  --success:       #16A249;   /* rgb(22,162,73) — seen 40× */
+  --success-ink:   #036C4B;
+  --success-bg:    #EBFEF8;
+  --success-border:rgba(22,162,73,0.2);
+  --success-emerald: #059669;
+
+  --warning:       #F59F0A;   /* amber */
+  --warning-ink:   #CD8508;
+  --warning-bg:    #FEF7EB;
+  --warning-border:rgba(245,159,10,0.2);
+
+  --danger:        #DC2828;   /* rgb(220,40,40) — seen 49× */
+  --danger-ink:    #BC1E1E;
+  --danger-bg:    #FCEDED;
+  --danger-border:rgba(220,40,40,0.2);
+
+  --info:          #2463EB;
+  --info-ink:      #134FD1;
+  --info-bg:       #ECF1FD;
+  --info-border:   rgba(36,99,235,0.2);
+
+  /* ============================================================
+     NEUTRALS — fg/bg hierarchy
+     ============================================================ */
+  --ink-900: #12172B;   /* primary text — rgb(18,23,43)  251× */
+  --ink-700: #3E4553;
+  --ink-500: #6C727F;   /* secondary text — rgb(108,114,127) 247× */
+  --ink-400: #99A1AF;
+  --ink-300: #D0D5DD;
+  --ink-200: #DDDFE4;   /* hairline borders */
+  --ink-100: #EDEFF3;   /* muted */
+  --ink-50:  #F9FAFB;
+
+  --bg:          #FCFCFD;   /* app background — rgb(252,252,253) */
+  --bg-surface:  #FFFFFF;   /* cards, sheets */
+  --bg-muted:    #F9FAFB;   /* rows, inactive */
+  --bg-hairline: #F3F4F6;
+  --bg-input:    #F6F6F6;   /* borderless input fill */
+  --bg-ghost:    #EBECEC;   /* ghost button bg */
+
+  --border:       #DDDFE4;
+  --border-muted: #EDEFF3;
+
+  /* ============================================================
+     ELEVATION / SHADOWS (Figma: 0.1 alpha)
+     ============================================================ */
+  --shadow-xs: 0 1px 2px -1px rgba(0,0,0,0.08), 0 1px 3px 0 rgba(0,0,0,0.06);
+  --shadow-sm: 0 2px 4px 0 rgba(0,0,0,0.08), 0 4px 6px 0 rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px -2px rgba(0,0,0,0.08), 0 8px 24px -4px rgba(0,0,0,0.08);
+  --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.25);
+  --shadow-inset: inset 0 0 0 1px rgba(1,24,125,0.06);
+
+  /* ============================================================
+     RADII — 6/8/12 are the system
+     ============================================================ */
+  --radius-xs: 4px;
+  --radius-sm: 6px;   /* buttons, inputs */
+  --radius-md: 8px;   /* cards small, chips */
+  --radius-lg: 12px;  /* cards, panels */
+  --radius-xl: 16px;  /* modals */
+  --radius-2xl: 24px; /* sheets, overlays */
+  --radius-full: 999px;
+
+  /* ============================================================
+     SPACING SCALE (4-px baseline)
+     ============================================================ */
+  --sp-0:  0;
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* ============================================================
+     MOTION
+     ============================================================ */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1);
+  --dur-fast:   120ms;
+  --dur-normal: 180ms;
+  --dur-slow:   240ms;
+}
+
+/* ============================================================
+   SEMANTIC ELEMENT STYLES
+   ============================================================ */
+html, body {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  color: var(--ink-900);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, .h1 {
+  font-size: var(--text-2xl);
+  line-height: var(--lh-2xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink-900);
+  margin: 0;
+}
+h2, .h2 {
+  font-size: var(--text-xl);
+  line-height: var(--lh-xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink-900);
+  margin: 0;
+}
+h3, .h3 {
+  font-size: var(--text-base);
+  line-height: var(--lh-base);
+  font-weight: var(--fw-bold);
+  color: var(--ink-900);
+  margin: 0;
+}
+h4, .h4 {
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink-900);
+  margin: 0;
+}
+p, .body {
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  color: var(--ink-500);
+  margin: 0;
+}
+.caption {
+  font-size: var(--text-xs);
+  line-height: var(--lh-xs);
+  color: var(--ink-500);
+}
+.label {
+  font-size: var(--text-sm);
+  line-height: var(--lh-sm);
+  font-weight: var(--fw-medium);
+  color: var(--ink-900);
+}
+code, kbd, samp, pre, .mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0;
+}
+.num, .tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}

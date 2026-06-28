@@ -1,0 +1,26 @@
+/* Shared preview card wrapper — used by every /preview/*.html card */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #FCFCFD;
+  font-family: "Inter", system-ui, sans-serif;
+  color: #12172B;
+  -webkit-font-smoothing: antialiased;
+}
+.card-root {
+  padding: 20px 24px;
+  width: 100%;
+  min-height: 100%;
+}
+.row { display: flex; align-items: center; }
+.col { display: flex; flex-direction: column; }
+.gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; } .gap-5 { gap: 20px; } .gap-6 { gap: 24px; }
+.w-full { width: 100%; }
+.grow { flex: 1; }
+.mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+.tab { font-variant-numeric: tabular-nums; }
+.muted { color: #6C727F; }
+.ink { color: #12172B; }
+.caption { font-size: 11px; line-height: 14px; color: #6C727F; letter-spacing: 0.02em; text-transform: uppercase; font-weight: 500; }

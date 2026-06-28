@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"><script src="https://unpkg.com/lucide@latest"></script><link rel="stylesheet" href="_card.css"><style>
+  .grid { display:grid; grid-template-columns: repeat(10, 1fr); gap: 12px; }
+  .cell { display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px 4px; border-radius:8px; }
+  .cell:hover { background:#F9FAFB; }
+  .cell span { font:500 10px/1.2 Inter; color:#6C727F; text-align:center; }
+  i[data-lucide] { color:#12172B; }
+  .note { margin-top:12px; font:400 12px/16px Inter; color:#6C727F; }
+</style></head><body><div class="card-root">
+  <div class="grid">
+    <div class="cell"><i data-lucide="check-circle-2"></i><span>check</span></div>
+    <div class="cell"><i data-lucide="alert-triangle"></i><span>warn</span></div>
+    <div class="cell"><i data-lucide="x-circle"></i><span>error</span></div>
+    <div class="cell"><i data-lucide="info"></i><span>info</span></div>
+    <div class="cell"><i data-lucide="upload"></i><span>upload</span></div>
+    <div class="cell"><i data-lucide="download"></i><span>export</span></div>
+    <div class="cell"><i data-lucide="filter"></i><span>filter</span></div>
+    <div class="cell"><i data-lucide="settings"></i><span>settings</span></div>
+    <div class="cell"><i data-lucide="search"></i><span>search</span></div>
+    <div class="cell"><i data-lucide="plus"></i><span>create</span></div>
+    <div class="cell"><i data-lucide="trash-2"></i><span>delete</span></div>
+    <div class="cell"><i data-lucide="file-text"></i><span>invoice</span></div>
+    <div class="cell"><i data-lucide="building-2"></i><span>vendor</span></div>
+    <div class="cell"><i data-lucide="arrow-right-left"></i><span>recon</span></div>
+    <div class="cell"><i data-lucide="clock"></i><span>pending</span></div>
+    <div class="cell"><i data-lucide="users"></i><span>clients</span></div>
+    <div class="cell"><i data-lucide="shield-check"></i><span>compliance</span></div>
+    <div class="cell"><i data-lucide="bar-chart-3"></i><span>reports</span></div>
+    <div class="cell"><i data-lucide="bell"></i><span>alerts</span></div>
+    <div class="cell"><i data-lucide="chevron-down"></i><span>expand</span></div>
+  </div>
+  <div class="note">Lucide — 1.5px stroke, round caps. Sized 16 in buttons, 20 in fields, 24 in list rows.</div>
+  <script>lucide.createIcons();</script>
+</div></body></html>

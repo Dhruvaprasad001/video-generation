@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"><link rel="stylesheet" href="_card.css"><style>
+  .grid { display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+  .card { border-radius:12px; padding:20px; text-align:center; }
+  .success { background:rgba(22,162,73,0.04); border:1px solid rgba(22,162,73,0.20); }
+  .err { background:rgba(220,40,40,0.04); border:1px solid rgba(220,40,40,0.20); }
+  .badge { width:52px; height:52px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; font:700 22px/1 Inter; margin:0 auto 10px; }
+  .title { font:700 15px/22px Inter; color:#12172B; }
+  .body { font:400 13px/18px Inter; color:#6C727F; margin:6px auto 14px; max-width:300px; }
+  .row { display:flex; gap:10px; justify-content:center; }
+  .btn { height:34px; padding:0 14px; border-radius:6px; font:500 13px/1 Inter; border:0; cursor:pointer; }
+  .pri { background:#01187D; color:white; } .pri-danger { background:#DC2828; color:white; }
+  .ghost { background:transparent; color:#12172B; border:1px solid #DDDFE4; }
+</style></head><body><div class="card-root">
+<div class="grid">
+  <div class="card success">
+    <div class="badge" style="background:rgba(22,162,73,0.10);color:#16A249">✓</div>
+    <div class="title">Confirmation Sent Successfully</div>
+    <div class="body">Balance confirmation has been sent to 12 vendors. You'll be notified when they respond.</div>
+    <div class="row"><button class="btn pri">View Status</button><button class="btn ghost">Back to Dashboard</button></div>
+  </div>
+  <div class="card err">
+    <div class="badge" style="background:rgba(220,40,40,0.10);color:#DC2828">✕</div>
+    <div class="title">Submission Failed</div>
+    <div class="body">Could not process the reconciliation. The server returned an error. Please try again.</div>
+    <div class="row"><button class="btn pri-danger">Retry</button><button class="btn ghost">Contact Support</button></div>
+  </div>
+</div>
+</div></body></html>

@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap"><link rel="stylesheet" href="_card.css"><style>
+  .row { display:flex; align-items:center; gap:28px; }
+  .mark { display:flex; align-items:center; gap:10px; }
+  .circle { width:44px; height:44px; border-radius:999px; background:#01187D; display:flex; align-items:center; justify-content:center; }
+  .word { font:700 22px/1 Inter; letter-spacing:-0.4px; color:#12172B; }
+  .dark { background:#12172B; padding:16px 20px; border-radius:10px; }
+  .word-light { color:white; }
+  .caption { font:400 11px/14px "JetBrains Mono"; color:#6C727F; margin-top:8px; text-align:center; }
+  .col { display:flex; flex-direction:column; align-items:center; }
+</style></head><body><div class="card-root">
+<div class="row">
+  <div class="col">
+    <div class="mark">
+      <div class="circle"><img src="../assets/logo-mark.svg" alt="" width="28" height="28"></div>
+      <div class="word">OneCap</div>
+    </div>
+    <div class="caption">light background</div>
+  </div>
+  <div class="col">
+    <div class="dark mark">
+      <div class="circle" style="background:white"><img src="../assets/logo-mark-dark.svg" alt="" width="28" height="28"></div>
+      <div class="word word-light">OneCap</div>
+    </div>
+    <div class="caption">dark background</div>
+  </div>
+  <div class="col">
+    <div class="mark"><img src="../assets/favicon.svg" width="32" height="32"></div>
+    <div class="caption">mark only · 24px min</div>
+  </div>
+</div>
+</div></body></html>

@@ -1,0 +1,24 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_card.css"><style>
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .cell { border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; font: 500 13px/1.2 Inter; }
+  .dot { width: 10px; height: 10px; border-radius: 999px; flex: none; }
+  .hex { margin-left: auto; font: 500 11px/1 "JetBrains Mono"; color: #6C727F; }
+</style></head><body><div class="card-root">
+  <div class="grid">
+    <div class="cell" style="background:rgba(22,162,73,0.08);color:#036C4B">
+      <span class="dot" style="background:#16A249"></span> Success <span class="hex">#16A249</span>
+    </div>
+    <div class="cell" style="background:rgba(245,159,10,0.10);color:#8D5605">
+      <span class="dot" style="background:#F59F0A"></span> Warning <span class="hex">#F59F0A</span>
+    </div>
+    <div class="cell" style="background:rgba(220,40,40,0.08);color:#9B1A1A">
+      <span class="dot" style="background:#DC2828"></span> Error <span class="hex">#DC2828</span>
+    </div>
+    <div class="cell" style="background:rgba(36,99,235,0.08);color:#134FD1">
+      <span class="dot" style="background:#2463EB"></span> Info <span class="hex">#2463EB</span>
+    </div>
+  </div>
+  <div style="margin-top:10px; font: 400 12px/16px Inter; color: #6C727F;">
+    Semantic colors are reserved for state feedback — confirmations, validation, banners. Not decorative.
+  </div>
+</div></body></html>
