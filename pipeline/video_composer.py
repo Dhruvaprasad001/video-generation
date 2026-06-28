@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -22,6 +23,19 @@ from typing import List
 
 from models import LessonVideo, NarrationScript, SlideAsset, Storyboard
 from tools.mcp_tools import record_slide_to_video
+
+
+def _safe_lesson_key(title: str) -> str:
+    """Convert a lesson title to a safe filesystem + URL directory name.
+
+    Strips characters that break file:// URLs (?#&=) or are otherwise
+    problematic on common filesystems (:*<>|\\").
+    """
+    key = title.lower()
+    key = re.sub(r'[?#&=:*<>|\\\"\']+', '', key)
+    key = re.sub(r'[\s/]+', '_', key)
+    key = re.sub(r'_+', '_', key)
+    return key.strip('_')
 
 logger = logging.getLogger(__name__)
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from pathlib import Path
 from typing import List
 
@@ -18,6 +19,14 @@ from pipeline.template_mapper import map_scene_to_template
 from pipeline.slide_templates import render_template
 from tools.mcp_tools import render_slide_to_png
 from config import settings
+
+
+def _safe_lesson_key(title: str) -> str:
+    key = title.lower()
+    key = re.sub(r'[?#&=:*<>|\\\"\']+', '', key)
+    key = re.sub(r'[\s/]+', '_', key)
+    key = re.sub(r'_+', '_', key)
+    return key.strip('_')
 
 logger = logging.getLogger(__name__)
 

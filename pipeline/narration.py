@@ -12,11 +12,20 @@ The scripts are saved as:
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 from typing import List
 
 from models import Scene, SceneNarration, NarrationScript, Storyboard
 from pipeline.base import call_llm, load_json_if_exists, load_prompt, save_json
+
+
+def _safe_lesson_key(title: str) -> str:
+    key = title.lower()
+    key = re.sub(r'[?#&=:*<>|\\\"\']+', '', key)
+    key = re.sub(r'[\s/]+', '_', key)
+    key = re.sub(r'_+', '_', key)
+    return key.strip('_')
 
 logger = logging.getLogger(__name__)
 

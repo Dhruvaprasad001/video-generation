@@ -7,6 +7,7 @@ Hook → Explanation → Example → Recap → Quiz
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 from typing import List
 
@@ -14,6 +15,14 @@ from models import Course, Lesson, LessonPlan
 from pipeline.base import load_prompt, run_agent
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_lesson_key(title: str) -> str:
+    key = title.lower()
+    key = re.sub(r'[?#&=:*<>|\\\"\']+', '', key)
+    key = re.sub(r'[\s/]+', '_', key)
+    key = re.sub(r'_+', '_', key)
+    return key.strip('_')
 
 
 class LessonPlannerAgent:
@@ -37,7 +46,7 @@ class LessonPlannerAgent:
         system_prompt: str,
         cache_dir: Path,
     ) -> LessonPlan:
-        cache_key = lesson.title.lower().replace(" ", "_").replace("/", "_")
+        cache_key = _safe_lesson_key(lesson.title)
         cache_path = cache_dir / f"03_lesson_plan_{cache_key}.json"
 
         objectives_text = "\n".join(

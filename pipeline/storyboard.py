@@ -7,6 +7,7 @@ slide type, content dict, narration text, duration, and transitions.
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 from typing import List
 
@@ -14,6 +15,14 @@ from models import LessonPlan, Storyboard
 from pipeline.base import load_prompt, run_agent
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_lesson_key(title: str) -> str:
+    key = title.lower()
+    key = re.sub(r'[?#&=:*<>|\\\"\']+', '', key)
+    key = re.sub(r'[\s/]+', '_', key)
+    key = re.sub(r'_+', '_', key)
+    return key.strip('_')
 
 
 class StoryboardAgent:
@@ -41,7 +50,7 @@ class StoryboardAgent:
         system_prompt: str,
         cache_dir: Path,
     ) -> Storyboard:
-        cache_key = plan.lesson_title.lower().replace(" ", "_").replace("/", "_")
+        cache_key = _safe_lesson_key(plan.lesson_title)
         cache_path = cache_dir / f"04_storyboard_{cache_key}.json"
 
         sections_text = "\n\n".join(
