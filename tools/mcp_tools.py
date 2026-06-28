@@ -131,17 +131,16 @@ async def record_slide_to_video(
     html_path: str,
     mp4_path: str,
     duration_seconds: int,
-    animation_seconds: int = 3,
+    animation_seconds: int = 0,
     width: int = 1920,
     height: int = 1080,
 ) -> str:
     """
     Record a slide HTML file to an MP4 clip.
 
-    Strategy: record only the CSS entrance animation window (animation_seconds,
-    default 3 s), then use ffmpeg tpad=stop_mode=clone to freeze the last frame
-    for the remaining (duration_seconds - animation_seconds) seconds.  This is
-    ~10x faster than recording the full duration while producing identical output.
+    Records the full scene duration so that all continuous looping animations
+    (floating orbs, pulsing glows, drifting particles) play throughout.
+    animation_seconds=0 means record the full duration_seconds.
 
     Returns the path to the written MP4 on success, or an error string prefixed
     with "ERROR:" so callers can detect failure and fall back to PNG-based clips.
@@ -153,8 +152,8 @@ async def record_slide_to_video(
     mp4_path_obj = Path(mp4_path)
     mp4_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
-    # Never record more than the actual clip duration
-    record_duration = min(animation_seconds, duration_seconds)
+    # Record full duration (animation_seconds=0 means no cap)
+    record_duration = duration_seconds if animation_seconds == 0 else min(animation_seconds, duration_seconds)
     hold_seconds = duration_seconds - record_duration
 
     try:
@@ -174,8 +173,8 @@ async def record_slide_to_video(
                 )
                 page = await context.new_page()
                 await page.goto(f"file://{html_path_obj}", wait_until="networkidle")
-                await page.wait_for_timeout(200)                    # let animations begin
-                await page.wait_for_timeout(record_duration * 1000) # animation window only
+                await page.wait_for_timeout(300)                    # let animations begin
+                await page.wait_for_timeout(record_duration * 1000) # full scene duration
                 await context.close()
                 await browser.close()
 
@@ -196,7 +195,7 @@ async def record_slide_to_video(
                         "-preset", "fast", "-an",
                         str(anim_mp4),
                     ],
-                    capture_output=True, text=True, timeout=120,
+                    capture_output=True, text=True, timeout=duration_seconds + 180,
                 )
                 if result.returncode != 0:
                     return f"ERROR: ffmpeg webm→mp4 failed: {result.stderr[-300:]}"
@@ -213,7 +212,7 @@ async def record_slide_to_video(
                     "-preset", "fast", "-an",
                     str(mp4_path_obj),
                 ],
-                capture_output=True, text=True, timeout=120,
+                capture_output=True, text=True, timeout=duration_seconds + 180,
             )
             if result.returncode != 0:
                 logger.warning(

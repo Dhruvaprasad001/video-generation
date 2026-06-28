@@ -46,7 +46,7 @@ class SlideGeneratorAgent:
         system_prompt: str,
         output_dir: Path,
     ) -> List[SlideAsset]:
-        lesson_key = board.lesson_title.lower().replace(" ", "_").replace("/", "_")
+        lesson_key = _safe_lesson_key(board.lesson_title)
         slides_dir = output_dir / lesson_key / "slides"
         slides_dir.mkdir(parents=True, exist_ok=True)
 
@@ -164,14 +164,20 @@ class SlideGeneratorAgent:
         raw_content if the LLM call fails.
         """
         user_prompt = (
-            f"Format the following storyboard scene data as clean JSON for a '{slide_type}' slide.\n\n"
+            f"Create rich, specific slide content as JSON for a '{slide_type}' slide.\n\n"
             f"LESSON: {lesson_title}\n"
             f"SCENE: {scene.scene_number}\n"
             f"SLIDE TYPE: {slide_type}\n"
             f"SECTION TYPE: {scene.section_type}\n"
             f"DURATION: {scene.duration_seconds}s\n\n"
-            f"STORYBOARD CONTENT:\n{json.dumps(scene.slide_content, indent=2)}\n\n"
-            f"NARRATION (context only — do not show on slide):\n{scene.narration_text}\n\n"
+            f"NARRATION SCRIPT (your PRIMARY source — mine this for specific facts, names, numbers, mechanisms):\n{scene.narration_text}\n\n"
+            f"RAW STORYBOARD DATA (secondary reference):\n{json.dumps(scene.slide_content, indent=2)}\n\n"
+            f"INSTRUCTIONS:\n"
+            f"- Extract the most specific, interesting facts from the narration\n"
+            f"- For diagrams: build accurate Mermaid code reflecting the real process described\n"
+            f"- For charts: use realistic domain values from the narration (not placeholder numbers)\n"
+            f"- For definitions: write precise, specific definitions naming real mechanisms\n"
+            f"- Never write vague filler — every word must carry real information\n"
             f"Return ONLY valid JSON with the required keys for slide_type '{slide_type}'. No explanation."
         )
 

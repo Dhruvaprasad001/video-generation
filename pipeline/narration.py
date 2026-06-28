@@ -44,7 +44,7 @@ class NarrationAgent:
         system_prompt: str,
         output_dir: Path,
     ) -> NarrationScript:
-        lesson_key = board.lesson_title.lower().replace(" ", "_").replace("/", "_")
+        lesson_key = _safe_lesson_key(board.lesson_title)
         narration_dir = output_dir / lesson_key / "narration"
         narration_dir.mkdir(parents=True, exist_ok=True)
 

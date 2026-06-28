@@ -80,7 +80,7 @@ class VideoComposerAgent:
         narration: "NarrationScript | None",
         output_dir: Path,
     ) -> LessonVideo:
-        lesson_key = board.lesson_title.lower().replace(" ", "_").replace("/", "_")
+        lesson_key = _safe_lesson_key(board.lesson_title)
         lesson_dir = output_dir / lesson_key
         lesson_dir.mkdir(parents=True, exist_ok=True)
         video_path = lesson_dir / "lesson.mp4"
@@ -196,7 +196,7 @@ class VideoComposerAgent:
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
                 future = executor.submit(_run_in_thread)
-                result = future.result(timeout=duration + 60)
+                result = future.result(timeout=duration + 120)
         except concurrent.futures.TimeoutError:
             logger.warning("Animated clip recording timed out for %s", html_path)
             return False
